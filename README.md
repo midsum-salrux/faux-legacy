@@ -14,6 +14,8 @@ Self-hosting is encouraged, especially for private groups, but I also run a publ
 
 `git clone https://github.com/midsum-salrux/faux`
 
+`cd faux`
+
 `pip3 install .`
 
 #### Configuration
