@@ -59,7 +59,9 @@ The name of the ship hosting your group. No `~`
 
 ##### discord_group_id
 
-The id of your discord group
+The internal id of your discord group. You can find it from the URL
+
+![](https://i.imgur.com/Kjnih92.png)
 
 ##### channels
 
