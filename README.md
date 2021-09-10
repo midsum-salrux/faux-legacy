@@ -12,7 +12,7 @@ Self-hosting is encouraged, especially for private groups, but I also run a publ
 
 #### Installation
 
-`https://github.com/midsum-salrux/faux`
+`git clone https://github.com/midsum-salrux/faux`
 
 `pip3 install .`
 
