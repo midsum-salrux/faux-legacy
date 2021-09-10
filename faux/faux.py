@@ -22,7 +22,7 @@ def urbit_client():
     return client
 
 def groups():
-    with open('../groups.json', 'r') as groupfile:
+    with open('groups.json', 'r') as groupfile:
             data = groupfile.read()
 
     return json.loads(data)
