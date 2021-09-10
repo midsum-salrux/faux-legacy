@@ -77,7 +77,7 @@ The internal id of your discord channel. You can find it from the URL
 
 ![](https://i.imgur.com/RfEIPzk.png)
 
-### RUNNING
+#### Running
 
 Invite your urbit bot to your urbit group, and your discord bot to your discord group, then run:
 

@@ -3,5 +3,4 @@
   "channels": [
       { "discord_channel_name": "general",
         "discord_channel_id": 123456789012345678,
-        "urbit_channel": "general-1234" }
-  ]}]
+        "urbit_channel": "general-1234" }]}]
