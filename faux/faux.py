@@ -50,7 +50,7 @@ class FauxDiscordListener(discord.Client):
         else:
             matching_groups = list(
                 filter(
-                    lambda g: g["discord_group"] == message.guild.name,
+                    lambda g: g["discord_group_id"] == message.guild.id,
                     self.groups)
             )
             if len(matching_groups) != 0:
@@ -58,7 +58,7 @@ class FauxDiscordListener(discord.Client):
 
                 matching_channels = list(
                     filter(
-                        lambda c: c["discord_channel_name"] == message.channel.name,
+                        lambda c: c["discord_channel_id"] == message.channel.id,
                         group["channels"]
                     )
                 )

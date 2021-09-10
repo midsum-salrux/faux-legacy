@@ -1,6 +1,5 @@
 [{"urbit_ship": "zod",
-  "discord_group": "My Discord Group",
+  "discord_group_id": 214365879012435876,
   "channels": [
-      { "discord_channel_name": "general",
-        "discord_channel_id": 123456789012345678,
+      { "discord_channel_id": 123456789012345678,
         "urbit_channel": "general-1234" }]}]

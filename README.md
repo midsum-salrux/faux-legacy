@@ -46,28 +46,24 @@ This file specifies where posts will be echoed between. Here's a sample:
 
 ```
 [{"urbit_ship": "zod",
-  "discord_group": "My Discord Group",
+  "discord_group_id": 214365879012435876,
   "channels": [
-      { "discord_channel_name": "general",
-        "discord_channel_id": 123456789012345678,
+      { "discord_channel_id": 123456789012345678,
         "urbit_channel": "general-1234" }]}]
+
 ```
 
 ##### urbit_ship
 
 The name of the ship hosting your group. No `~`
 
-##### discord_group
+##### discord_group_id
 
-The name of your discord server
+The id of your discord group
 
 ##### channels
 
 A list of channels you want to sync
-
-##### discord_channel_name
-
-The name of your discord channel
 
 ##### urbit_channel
 
