@@ -32,9 +32,13 @@ Your urbit bot ship name, with no `~`. For example, `botdys-dozzod-tomdys`
 The `+code` of your urbit bot
 
 ###### DISCORD_TOKEN
-The API token of your discord bot. You can find it here:
+You need to create a discord bot to self-host Faux. Here are some instructions:
 
-![](https://i.imgur.com/qOGnHlc.png)
+https://www.freecodecamp.org/news/create-a-discord-bot-with-python/
+
+This environment variable is the API token of your discord bot. You can find it here:
+
+![](https://i.imgur.com/s6k1GUt.png)
 
 #### groups.json
 
