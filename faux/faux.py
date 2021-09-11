@@ -128,7 +128,6 @@ def discord_runner(group):
     listener.run(DISCORD_TOKEN)
 
 def urbit_runner(group):
-    print(group)
     listener = FauxUrbitListener()
     listener.group = group
     listener.urbit_client = urbit_client()
