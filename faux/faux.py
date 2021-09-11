@@ -29,12 +29,12 @@ def groups():
 
 class FauxDiscordListener(discord.Client):
     @property
-    def groups(self):
-        return self._groups
+    def group(self):
+        return self._group
 
-    @groups.setter
-    def groups(self, value):
-        self._groups = value
+    @group.setter
+    def group(self, value):
+        self._group = value
 
     @property
     def urbit_client(self):
@@ -48,18 +48,11 @@ class FauxDiscordListener(discord.Client):
         if message.author == self.user:
             return
         else:
-            matching_groups = list(
-                filter(
-                    lambda g: g["discord_group_id"] == message.guild.id,
-                    self.groups)
-            )
-            if len(matching_groups) != 0:
-                group = matching_groups[0]
-
+            if self.group["discord_group_id"] == message.guild.id:
                 matching_channels = list(
                     filter(
                         lambda c: c["discord_channel_id"] == message.channel.id,
-                        group["channels"]
+                        self.group["channels"]
                     )
                 )
 
@@ -67,7 +60,7 @@ class FauxDiscordListener(discord.Client):
                     channel = matching_channels[0]
 
                     self.urbit_client.post_message(
-                        group["urbit_ship"],
+                        self.group["urbit_ship"],
                         channel["urbit_channel"],
                         {"text": "%s: %s" % (message.author.display_name, message.content)}
                     )
@@ -89,12 +82,12 @@ class FauxDiscordPoster(discord.Client):
 
 class FauxUrbitListener():
     @property
-    def groups(self):
-        return self._groups
+    def group(self):
+        return self._group
 
-    @groups.setter
-    def groups(self, value):
-        self._groups = value
+    @group.setter
+    def group(self, value):
+        self._group = value
 
     @property
     def urbit_client(self):
@@ -106,18 +99,11 @@ class FauxUrbitListener():
 
     def run(self):
         async def urbit_action(message, _):
-            matching_groups = list(
-                filter(
-                    lambda g: g["urbit_ship"] == message.host_ship,
-                    self.groups)
-            )
-            if len(matching_groups) != 0:
-                group = matching_groups[0]
-
+            if self.group["urbit_ship"] == message.host_ship:
                 matching_channels = list(
                     filter(
                         lambda c: c["urbit_channel"] == message.resource_name,
-                        group["channels"]
+                        self.group["channels"]
                     )
                 )
 
@@ -134,22 +120,23 @@ class FauxUrbitListener():
 
         self.urbit_client.listen(urbit_listener)
 
-def discord_runner():
+def discord_runner(group):
     listener = FauxDiscordListener()
-    listener.groups = groups()
+    listener.group = group
     listener.urbit_client = urbit_client()
 
     listener.run(DISCORD_TOKEN)
 
-def urbit_runner():
+def urbit_runner(group):
     listener = FauxUrbitListener()
-    listener.groups = groups()
+    listener.group = group
     listener.urbit_client = urbit_client()
 
     listener.run()
 
 if __name__ == '__main__':
-    discord_process = Process(target=discord_runner)
-    urbit_process = Process(target=urbit_runner)
-    discord_process.start()
-    urbit_process.start()
+    for group in groups():
+        discord_process = Process(target=discord_runner, args=(group,))
+        urbit_process = Process(target=urbit_runner, args=(group,))
+        discord_process.start()
+        urbit_process.start()
