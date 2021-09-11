@@ -32,7 +32,7 @@ class FauxDiscordListener(discord.Client):
     def group(self):
         return self._group
 
-    @groups.setter
+    @group.setter
     def group(self, value):
         self._group = value
 
@@ -85,7 +85,7 @@ class FauxUrbitListener():
     def group(self):
         return self._group
 
-    @groups.setter
+    @group.setter
     def group(self, value):
         self._group = value
 
@@ -138,7 +138,7 @@ def urbit_runner(group):
 
 if __name__ == '__main__':
     for group in groups():
-        discord_process = Process(target=discord_runner, args=(group))
-        urbit_process = Process(target=urbit_runner, args=(group))
+        discord_process = Process(target=discord_runner, args=(group,))
+        urbit_process = Process(target=urbit_runner, args=(group,))
         discord_process.start()
         urbit_process.start()
