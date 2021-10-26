@@ -118,7 +118,12 @@ class FauxUrbitListener():
         def urbit_listener(message, _):
             asyncio.run(urbit_action(message, _))
 
-        self.urbit_client.listen(urbit_listener)
+        while True:
+            try:
+                self.urbit_client.listen(urbit_listener)
+            except UnicodeDecodeError:
+                continue
+
 
 def discord_runner(group):
     listener = FauxDiscordListener()
