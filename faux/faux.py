@@ -122,6 +122,9 @@ class FauxUrbitListener():
             try:
                 self.urbit_client.listen(urbit_listener)
             except UnicodeDecodeError:
+                self.urbit_client.ship.delete()
+                self.urbit_client = urbit_client()
+
                 continue
 
 
