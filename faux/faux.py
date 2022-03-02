@@ -2,6 +2,7 @@ import os
 import json
 import quinnat
 import discord
+import discord.http
 import asyncio
 from multiprocessing import Process
 
@@ -47,6 +48,8 @@ class FauxDiscordListener(discord.Client):
     async def on_message(self, message):
         if message.author == self.user:
             return
+        if (not message.guild.id):
+            return
         else:
             if self.group["discord_group_id"] == message.guild.id:
                 matching_channels = list(
@@ -59,13 +62,41 @@ class FauxDiscordListener(discord.Client):
                 if len(matching_channels) != 0:
                     channel = matching_channels[0]
 
-                    self.urbit_client.post_message(
-                        self.group["urbit_ship"],
-                        channel["urbit_channel"],
-                        {"text": "%s: %s" % (message.author.display_name, message.content)}
-                    )
+                    if (len(message.attachments) > 0):
+                        messageAttachment = message.attachments[0].url
+                        print(messageAttachment)
+                        if (messageAttachment):
+                            self.urbit_client.post_message(
+                                self.group['urbit_ship'],
+                                channel["urbit_channel"],
+                                {"text": "__%s:__ %s" % (message.author.display_name, message.content),
+                                 "url": messageAttachment}
+                            )
+                    elif len(message.embeds) > 0:
+                        embed = message.embeds[0].to_dict()
+                        parsed = json.dumps(embed, indent=2)
+                        if embed["video"]:
+                            parsed = embed["video"]
+                        elif embed["url"] and embed["title"]:
+                            parsed = "*%s* - %s" % (embed["title"], embed["url"])
+                        self.urbit_client.post_message(
+                            self.group["urbit_ship"],
+                            channel["urbit_channel"],
+                            {"text": "__%s__: %s" % (
+                                message.author.display_name,
+                                parsed)
+                             }
+                        )
+                    else:
+                        self.urbit_client.post_message(
+                            self.group["urbit_ship"],
+                            channel["urbit_channel"],
+                            {"text": "__%s:__ %s" % (
+                                message.author.display_name,
+                                message.content)}
+                        )
 
-class FauxDiscordPoster(discord.Client):
+class FauxUrbitListener(discord.http.HTTPClient):
     @property
     def message(self):
         return self._message
@@ -74,13 +105,6 @@ class FauxDiscordPoster(discord.Client):
     def message(self, value):
         self._message = value
 
-    async def on_ready(self):
-        discord_channel = self.get_channel(self.message["channel_id"])
-
-        result = await discord_channel.send(self.message["content"])
-        await self.close()
-
-class FauxUrbitListener():
     @property
     def group(self):
         return self._group
@@ -99,6 +123,7 @@ class FauxUrbitListener():
 
     def run(self):
         async def urbit_action(message, _):
+            await self.static_login(DISCORD_TOKEN)
             if self.group["urbit_ship"] == message.host_ship:
                 matching_channels = list(
                     filter(
@@ -110,10 +135,11 @@ class FauxUrbitListener():
                 if len(matching_channels) != 0:
                     channel = matching_channels[0]
 
-                    poster = FauxDiscordPoster()
-                    poster.message = {"channel_id": channel["discord_channel_id"],
-                                      "content": "~%s: %s" % (message.author, message.full_text)}
-                    await poster.start(DISCORD_TOKEN)
+                    self.message = {"channel_id": channel["discord_channel_id"],
+                                    "content": "%s" % (message.full_text)}
+                    await self.send_message(
+                            channel["discord_channel_id"],
+                            message.full_text)
 
         def urbit_listener(message, _):
             asyncio.run(urbit_action(message, _))
