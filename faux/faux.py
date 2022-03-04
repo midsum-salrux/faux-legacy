@@ -1,3 +1,4 @@
+import string
 import os
 import json
 import quinnat
@@ -48,7 +49,7 @@ class FauxDiscordListener(discord.Client):
     async def on_message(self, message):
         if message.author == self.user:
             return
-        if (not message.guild.id):
+        if (not message.guild):
             return
         else:
             if self.group["discord_group_id"] == message.guild.id:
@@ -61,40 +62,63 @@ class FauxDiscordListener(discord.Client):
 
                 if len(matching_channels) != 0:
                     channel = matching_channels[0]
+                    printable = set(string.printable)
+                    author = ''.join(filter(lambda x: x in printable, message.author.name))
+                    parsed = ''.join(filter(lambda x: x in printable, message.clean_content))
+                    url = ''
+                    if parsed.startswith("https://tenor") and not parsed.endswith(".gif"):
+                        url = f'{parsed}.gif'
+                    if message.reference:
+                        ref_author = ''.join(filter(lambda x: x in printable, message.reference.resolved.author.name))
+                        ref_parsed = ''.join(filter(lambda x: x in printable, message.reference.resolved.clean_content))
+                        parsed = f'''> *({ref_author}): {ref_parsed}*
 
+                        {parsed}'''
+                    if len(message.stickers) > 0:
+                        url = message.stickers[0].image.url
+                    if len(message.embeds) > 0:
+                        embed = message.embeds[0].to_dict()
+                        try:
+                            url = embed["video"]["url"]
+                        except KeyError:
+                            pass
+                        else:
+                            try:
+                                url = embed["url"]
+                            except KeyError:
+                                parsed = parsed + json.dumps(embed, indent=2)
                     if (len(message.attachments) > 0):
-                        messageAttachment = message.attachments[0].url
-                        print(messageAttachment)
-                        if (messageAttachment):
+                        url = message.attachments[0].url
+                        result = {"text": f'__{author}__: {parsed}'}
+                        self.urbit_client.post_message(
+                            self.group['urbit_ship'],
+                            channel["urbit_channel"],
+                            result
+                            )
+                        if (url):
                             self.urbit_client.post_message(
                                 self.group['urbit_ship'],
                                 channel["urbit_channel"],
-                                {"text": "__%s:__ %s" % (message.author.display_name, message.content),
-                                 "url": messageAttachment}
+                                {
+                                 "url": url
+                                 }
                             )
-                    elif len(message.embeds) > 0:
-                        embed = message.embeds[0].to_dict()
-                        parsed = json.dumps(embed, indent=2)
-                        if embed["video"]:
-                            parsed = embed["video"]
-                        elif embed["url"] and embed["title"]:
-                            parsed = "*%s* - %s" % (embed["title"], embed["url"])
-                        self.urbit_client.post_message(
-                            self.group["urbit_ship"],
-                            channel["urbit_channel"],
-                            {"text": "__%s__: %s" % (
-                                message.author.display_name,
-                                parsed)
-                             }
-                        )
+
                     else:
+                        result = {"text": f'__{author}__: {parsed}'}
+                        if url == f'{parsed}.gif':
+                            self.urbit_client.post_message(
+                                self.group["urbit_ship"],
+                                channel["urbit_channel"],
+                                {"url": url}
+                            )
+
                         self.urbit_client.post_message(
                             self.group["urbit_ship"],
                             channel["urbit_channel"],
-                            {"text": "__%s:__ %s" % (
-                                message.author.display_name,
-                                message.content)}
+                            result
                         )
+
 
 class FauxUrbitListener(discord.http.HTTPClient):
     @property
@@ -137,7 +161,8 @@ class FauxUrbitListener(discord.http.HTTPClient):
 
                     self.message = {"channel_id": channel["discord_channel_id"],
                                     "content": "%s" % (message.full_text)}
-                    await self.send_message(
+                    if message.author == "littel-wolfur":
+                        await self.send_message(
                             channel["discord_channel_id"],
                             message.full_text)
 
