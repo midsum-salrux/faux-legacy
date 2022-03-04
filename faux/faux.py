@@ -87,7 +87,7 @@ class FauxDiscordListener(discord.Client):
                                 url = embed["url"]
                             except KeyError:
                                 parsed = parsed + json.dumps(embed, indent=2)
-                    if (len(message.attachments) > 0):
+                    if len(message.attachments) > 0:
                         url = message.attachments[0].url
                         result = {"text": f'__{author}__: {parsed}'}
                         self.urbit_client.post_message(
@@ -95,13 +95,11 @@ class FauxDiscordListener(discord.Client):
                             channel["urbit_channel"],
                             result
                             )
-                        if (url):
+                        if url:
                             self.urbit_client.post_message(
                                 self.group['urbit_ship'],
                                 channel["urbit_channel"],
-                                {
-                                 "url": url
-                                 }
+                                { "url": url }
                             )
 
                     else:
@@ -161,8 +159,7 @@ class FauxUrbitListener(discord.http.HTTPClient):
 
                     self.message = {"channel_id": channel["discord_channel_id"],
                                     "content": "%s" % (message.full_text)}
-                    if message.author == "littel-wolfur":
-                        await self.send_message(
+                    await self.send_message(
                             channel["discord_channel_id"],
                             message.full_text)
 
