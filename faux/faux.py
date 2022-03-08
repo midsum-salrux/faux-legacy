@@ -1,7 +1,9 @@
+import string
 import os
 import json
 import quinnat
 import discord
+import discord.http
 import asyncio
 from multiprocessing import Process
 
@@ -47,6 +49,8 @@ class FauxDiscordListener(discord.Client):
     async def on_message(self, message):
         if message.author == self.user:
             return
+        if (not message.guild):
+            return
         else:
             if self.group["discord_group_id"] == message.guild.id:
                 matching_channels = list(
@@ -58,14 +62,63 @@ class FauxDiscordListener(discord.Client):
 
                 if len(matching_channels) != 0:
                     channel = matching_channels[0]
+                    printable = set(string.printable)
+                    author = ''.join(filter(lambda x: x in printable, message.author.name))
+                    parsed = ''.join(filter(lambda x: x in printable, message.clean_content))
+                    url = ''
+                    if parsed.startswith("https://tenor") and not parsed.endswith(".gif"):
+                        url = f'{parsed}.gif'
+                    if message.reference:
+                        ref_author = ''.join(filter(lambda x: x in printable, message.reference.resolved.author.name))
+                        ref_parsed = ''.join(filter(lambda x: x in printable, message.reference.resolved.clean_content))
+                        parsed = f'''> *({ref_author}): {ref_parsed}*
 
-                    self.urbit_client.post_message(
-                        self.group["urbit_ship"],
-                        channel["urbit_channel"],
-                        {"text": "%s: %s" % (message.author.display_name, message.content)}
-                    )
+                        {parsed}'''
+                    if len(message.stickers) > 0:
+                        url = message.stickers[0].image.url
+                    if len(message.embeds) > 0:
+                        embed = message.embeds[0].to_dict()
+                        try:
+                            url = embed["video"]["url"]
+                        except KeyError:
+                            pass
+                        else:
+                            try:
+                                url = embed["url"]
+                            except KeyError:
+                                parsed = parsed + json.dumps(embed, indent=2)
+                    if len(message.attachments) > 0:
+                        url = message.attachments[0].url
+                        result = {"text": f'__{author}__: {parsed}'}
+                        self.urbit_client.post_message(
+                            self.group['urbit_ship'],
+                            channel["urbit_channel"],
+                            result
+                            )
+                        if url:
+                            self.urbit_client.post_message(
+                                self.group['urbit_ship'],
+                                channel["urbit_channel"],
+                                { "url": url }
+                            )
 
-class FauxDiscordPoster(discord.Client):
+                    else:
+                        result = {"text": f'__{author}__: {parsed}'}
+                        if url == f'{parsed}.gif':
+                            self.urbit_client.post_message(
+                                self.group["urbit_ship"],
+                                channel["urbit_channel"],
+                                {"url": url}
+                            )
+
+                        self.urbit_client.post_message(
+                            self.group["urbit_ship"],
+                            channel["urbit_channel"],
+                            result
+                        )
+
+
+class FauxUrbitListener(discord.http.HTTPClient):
     @property
     def message(self):
         return self._message
@@ -74,13 +127,6 @@ class FauxDiscordPoster(discord.Client):
     def message(self, value):
         self._message = value
 
-    async def on_ready(self):
-        discord_channel = self.get_channel(self.message["channel_id"])
-
-        result = await discord_channel.send(self.message["content"])
-        await self.close()
-
-class FauxUrbitListener():
     @property
     def group(self):
         return self._group
@@ -99,6 +145,7 @@ class FauxUrbitListener():
 
     def run(self):
         async def urbit_action(message, _):
+            await self.static_login(DISCORD_TOKEN)
             if self.group["urbit_ship"] == message.host_ship:
                 matching_channels = list(
                     filter(
@@ -110,10 +157,11 @@ class FauxUrbitListener():
                 if len(matching_channels) != 0:
                     channel = matching_channels[0]
 
-                    poster = FauxDiscordPoster()
-                    poster.message = {"channel_id": channel["discord_channel_id"],
-                                      "content": "~%s: %s" % (message.author, message.full_text)}
-                    await poster.start(DISCORD_TOKEN)
+                    self.message = {"channel_id": channel["discord_channel_id"],
+                                    "content": "%s" % (message.full_text)}
+                    await self.send_message(
+                            channel["discord_channel_id"],
+                            message.full_text)
 
         def urbit_listener(message, _):
             asyncio.run(urbit_action(message, _))
