@@ -66,7 +66,9 @@ class FauxDiscordListener(discord.Client):
                     author = ''.join(filter(lambda x: x in printable, message.author.name))
                     parsed = ''.join(filter(lambda x: x in printable, message.clean_content))
                     url = ''
-                    if parsed.startswith("https://tenor") and not parsed.endswith(".gif"):
+                    title = ''
+                    description = ''
+                    if parsed.startswith("https://tenor") or parsed.startswith("https://media.tenor") and not parsed.endswith(".gif"):
                         url = f'{parsed}.gif'
                     if message.reference:
                         ref_author = ''.join(filter(lambda x: x in printable, message.reference.resolved.author.name))
@@ -78,11 +80,12 @@ class FauxDiscordListener(discord.Client):
                         url = message.stickers[0].image.url
                     if len(message.embeds) > 0:
                         embed = message.embeds[0].to_dict()
+                        if embed["type"] == 'rich':
+                            title = embed["title"]
+                            description = embed["description"]
                         try:
                             url = embed["video"]["url"]
                         except KeyError:
-                            pass
-                        else:
                             try:
                                 url = embed["url"]
                             except KeyError:
@@ -103,14 +106,19 @@ class FauxDiscordListener(discord.Client):
                             )
 
                     else:
-                        result = {"text": f'__{author}__: {parsed}'}
-                        if url == f'{parsed}.gif':
-                            self.urbit_client.post_message(
-                                self.group["urbit_ship"],
-                                channel["urbit_channel"],
-                                {"url": url}
-                            )
-
+                        result = { "text": '' }
+                        if url != '':
+                            if title != '':
+                                title = f'[{title}]({url})'
+                            else:
+                                result["url"] = url 
+                        if description != '':
+                            description = f'''
+                            
+                            {description}
+                            
+                            '''
+                        result["text"] = f'__{author}__: {title}{description}{parsed}'                       
                         self.urbit_client.post_message(
                             self.group["urbit_ship"],
                             channel["urbit_channel"],
