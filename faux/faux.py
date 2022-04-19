@@ -146,7 +146,9 @@ class FauxDiscordListener(discord.Client):
                     [{orig_author_name}]({orig_author_url}): {description}
                 '''
             elif message_type == MessageType.DISCORD:
-                result["text"] = f'__{author}__: {title}{description}{parsed}'                       
+                result["text"] = f'__{author}__: {title}{description}{parsed}'        
+            elif message_type == MessageType.GIF:
+                result["text"] = f'__{author}__:'
             else:
                 print('found a message i couldnt parse')
                 print(parsed)
