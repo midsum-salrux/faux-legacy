@@ -6,11 +6,14 @@ import discord
 import discord.http
 import asyncio
 from multiprocessing import Process
+from enum import Enum
 
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 URBIT_URL = os.getenv('URBIT_URL')
 URBIT_SHIP = os.getenv('URBIT_SHIP')
 URBIT_CODE = os.getenv('URBIT_CODE')
+
+MessageType = Enum("MessageType", "PLAIN GIF TWITTER REDDIT DISCORD URBIT")
 
 def urbit_client():
     client = quinnat.Quinnat(
@@ -29,7 +32,7 @@ def groups():
 
     return json.loads(data)
 
-def key(o, k):
+def key_or_empty(o, k):
     try:
         return o[k]
     except KeyError:
@@ -69,7 +72,7 @@ class FauxDiscordListener(discord.Client):
         )
         if len(matching_channels) == 0:
             return
-        message_type = ''
+        message_type = MessageType.DISCORD
         channel = matching_channels[0]
         printable = set(string.printable)
         author = ''.join(filter(lambda x: x in printable, message.author.name))
@@ -81,7 +84,7 @@ class FauxDiscordListener(discord.Client):
         orig_author_url = ''
         orig_author_name = ''
         if parsed.startswith("https://tenor") or parsed.startswith("https://media.tenor") and not parsed.endswith(".gif"):
-            message_type = 'gif'
+            message_type = MessageType.GIF
             url = f'{parsed}.gif'
         if message.reference:
             ref_author = ''.join(filter(lambda x: x in printable, message.reference.resolved.author.name))
@@ -94,18 +97,18 @@ class FauxDiscordListener(discord.Client):
         if len(message.embeds) > 0:
             embed = message.embeds[0].to_dict()
             if embed["type"] == 'rich':
-                title = key(embed, 'title')
-                name = key(embed, 'name')
-                description = key(embed, 'description')
-                image = key(key(embed, 'image'), 'url')
-                url = key(embed, 'url')
-                orig_author_url = key(key(embed, 'author'), 'url')
-                orig_author_name = key(key(embed, 'author'), 'name')
-                if orig_author_url != '':
+                title = key_or_empty(embed, 'title')
+                name = key_or_empty(embed, 'name')
+                description = key_or_empty(embed, 'description')
+                image = key_or_empty(key_or_empty(embed, 'image'), 'url')
+                url = key_or_empty(embed, 'url')
+                orig_author_url = key_or_empty(key_or_empty(embed, 'author'), 'url')
+                orig_author_name = key_or_empty(key_or_empty(embed, 'author'), 'name')
+                if orig_author_url:
                     if orig_author_url.startswith('https://twitter'):
-                        message_type = 'twitter'
+                        message_type = MessageType.TWITTER
                     elif orig_author_url.startswith('https://reddit'):
-                        message_type = 'reddit'
+                        message_type = MessageType.REDDIT
                     else:
                         pass
             else:
@@ -126,24 +129,26 @@ class FauxDiscordListener(discord.Client):
                 )
         else:
             result = { "text": '' }
-            if description != '':
+            if description:
                 description = f'''
                 
                 {description}
                 
                 '''
-            if message_type == 'reddit':
+            if message_type == MessageType.REDDIT:
                 result["text"] = f'''
                     [{title} by {orig_author_name}]({url}):
 
                     {description}
                 '''
-            elif message_type == 'twitter':
+            elif message_type == MessageType.TWITTER:
                 result["text"] = f'''__{author}__:
                     [{orig_author_name}]({orig_author_url}): {description}
                 '''
-            elif message_type == 'discord':
-                result["text"] = f'__{author}__: {title}{description}{parsed}'                       
+            elif message_type == MessageType.DISCORD:
+                result["text"] = f'__{author}__: {title}{description}{parsed}'        
+            elif message_type == MessageType.GIF:
+                result["text"] = f'__{author}__:'
             else:
                 print('found a message i couldnt parse')
                 print(parsed)
@@ -152,13 +157,13 @@ class FauxDiscordListener(discord.Client):
                 channel["urbit_channel"],
                 result
             )
-            if url != '' and url not in result["text"]:
+            if url and url not in result["text"]:
                 self.urbit_client.post_message(
                     self.group["urbit_ship"],
                     channel["urbit_channel"],
                     { "url" : url }
                 )
-            if image != '' and image not in url:
+            if image and image not in url:
                 self.urbit_client.post_message(
                     self.group["urbit_ship"],
                     channel["urbit_channel"],
