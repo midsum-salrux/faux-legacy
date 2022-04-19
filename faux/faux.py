@@ -110,6 +110,8 @@ class FauxDiscordListener(discord.Client):
                         message_type = 'twitter'
                     elif orig_author_url.startswith('https://reddit'):
                         message_type = 'reddit'
+                    else:
+                        pass
                 print(title)
                 print(name)
                 print(description)
