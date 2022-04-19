@@ -145,8 +145,6 @@ class FauxDiscordListener(discord.Client):
                 {description}
                 
                 '''
-            if url != '':
-                result["url"] = url 
             if message_type == 'reddit':
                 result["text"] = f'''
                     [{title} by {orig_author_name}]({url}):
@@ -164,20 +162,24 @@ class FauxDiscordListener(discord.Client):
                 print(parsed)
             print('printing result')
             print(result["text"])
-            if url != '':
-                print('result had url')
-                print(result["url"])
             self.urbit_client.post_message(
                 self.group["urbit_ship"],
                 channel["urbit_channel"],
                 result
             )
+            if url != '':
+                self.urbit_client.post_message(
+                    self.group["urbit_ship"],
+                    channel["urbit_channel"],
+                    { "url" : url }
+                )
             if image != '':
                 self.urbit_client.post_message(
                     self.group["urbit_ship"],
                     channel["urbit_channel"],
                     { "url" : image }
                 )
+
 
 
 class FauxUrbitListener(discord.http.HTTPClient):
