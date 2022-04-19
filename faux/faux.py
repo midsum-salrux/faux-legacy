@@ -96,7 +96,7 @@ class FauxDiscordListener(discord.Client):
         if len(message.embeds) > 0:
             embed = message.embeds[0].to_dict()
             print('message had embeds')
-            primt(embed)
+            print(embed)
             if embed["type"] == 'rich':
                 title = key(embed, 'title')
                 name = key(embed, 'name')
