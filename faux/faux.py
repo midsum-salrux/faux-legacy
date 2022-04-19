@@ -29,6 +29,14 @@ def groups():
 
     return json.loads(data)
 
+def key(o, k):
+    try:
+        return o[k]
+    except KeyError:
+        return '' # key does not exist
+    except TypeError:
+        return o # o is a string, not an obj
+
 class FauxDiscordListener(discord.Client):
     @property
     def group(self):
@@ -51,90 +59,112 @@ class FauxDiscordListener(discord.Client):
             return
         if (not message.guild):
             return
+        if self.group["discord_group_id"] != message.guild.id:
+            return
+        matching_channels = list(
+            filter(
+                lambda c: c["discord_channel_id"] == message.channel.id,
+                self.group["channels"]
+            )
+        )
+        if len(matching_channels) == 0:
+            return
+        message_type = ''
+        channel = matching_channels[0]
+        printable = set(string.printable)
+        author = ''.join(filter(lambda x: x in printable, message.author.name))
+        parsed = ''.join(filter(lambda x: x in printable, message.clean_content))
+        url = ''
+        title = ''
+        description = ''
+        image = ''
+        orig_author_url = ''
+        orig_author_name = ''
+        if parsed.startswith("https://tenor") or parsed.startswith("https://media.tenor") and not parsed.endswith(".gif"):
+            message_type = 'gif'
+            url = f'{parsed}.gif'
+        if message.reference:
+            ref_author = ''.join(filter(lambda x: x in printable, message.reference.resolved.author.name))
+            ref_parsed = ''.join(filter(lambda x: x in printable, message.reference.resolved.clean_content))
+            parsed = f'''> *({ref_author}): {ref_parsed}*
+
+            {parsed}'''
+        if len(message.stickers) > 0:
+            url = message.stickers[0].image.url
+        if len(message.embeds) > 0:
+            embed = message.embeds[0].to_dict()
+            if embed["type"] == 'rich':
+                title = key(embed, 'title')
+                name = key(embed, 'name')
+                description = key(embed, 'description')
+                image = key(key(embed, 'image'), 'url')
+                url = key(embed, 'url')
+                orig_author_url = key(key(embed, 'author'), 'url')
+                orig_author_name = key(key(embed, 'author'), 'name')
+                if orig_author_url != '':
+                    if orig_author_url.startswith('https://twitter'):
+                        message_type = 'twitter'
+                    elif orig_author_url.startswith('https://reddit'):
+                        message_type = 'reddit'
+                    else:
+                        pass
+            else:
+                pass # ??
+        if len(message.attachments) > 0:
+            url = message.attachments[0].url
+            result = {"text": f'__{author}__: {parsed}'}
+            self.urbit_client.post_message(
+                    self.group['urbit_ship'],
+                    channel["urbit_channel"],
+                    result
+                )
+            if url:
+                self.urbit_client.post_message(
+                    self.group['urbit_ship'],
+                    channel["urbit_channel"],
+                    { "url": url }
+                )
         else:
-            if self.group["discord_group_id"] == message.guild.id:
-                matching_channels = list(
-                    filter(
-                        lambda c: c["discord_channel_id"] == message.channel.id,
-                        self.group["channels"]
-                    )
+            result = { "text": '' }
+            if description != '':
+                description = f'''
+                
+                {description}
+                
+                '''
+            if message_type == 'reddit':
+                result["text"] = f'''
+                    [{title} by {orig_author_name}]({url}):
+
+                    {description}
+                '''
+            elif message_type == 'twitter':
+                result["text"] = f'''__{author}__:
+                    [{orig_author_name}]({orig_author_url}): {description}
+                '''
+            elif message_type == 'discord':
+                result["text"] = f'__{author}__: {title}{description}{parsed}'                       
+            else:
+                print('found a message i couldnt parse')
+                print(parsed)
+            self.urbit_client.post_message(
+                self.group["urbit_ship"],
+                channel["urbit_channel"],
+                result
+            )
+            if url != '' and url not in result["text"]:
+                self.urbit_client.post_message(
+                    self.group["urbit_ship"],
+                    channel["urbit_channel"],
+                    { "url" : url }
+                )
+            if image != '' and image not in url:
+                self.urbit_client.post_message(
+                    self.group["urbit_ship"],
+                    channel["urbit_channel"],
+                    { "url" : image }
                 )
 
-                if len(matching_channels) != 0:
-                    channel = matching_channels[0]
-                    printable = set(string.printable)
-                    author = ''.join(filter(lambda x: x in printable, message.author.name))
-                    parsed = ''.join(filter(lambda x: x in printable, message.clean_content))
-                    url = ''
-                    title = ''
-                    description = ''
-                    image = ''
-                    if parsed.startswith("https://tenor") or parsed.startswith("https://media.tenor") and not parsed.endswith(".gif"):
-                        url = f'{parsed}.gif'
-                    if message.reference:
-                        ref_author = ''.join(filter(lambda x: x in printable, message.reference.resolved.author.name))
-                        ref_parsed = ''.join(filter(lambda x: x in printable, message.reference.resolved.clean_content))
-                        parsed = f'''> *({ref_author}): {ref_parsed}*
-
-                        {parsed}'''
-                    if len(message.stickers) > 0:
-                        url = message.stickers[0].image.url
-                    if len(message.embeds) > 0:
-                        embed = message.embeds[0].to_dict()
-                        if embed["type"] == 'rich':
-                            title = embed["title"]
-                            description = embed["description"]
-                            try:
-                                image = embed["image"]["url"]
-                            except KeyError:
-                                pass
-                        try:
-                            url = embed["video"]["url"]
-                        except KeyError:
-                            try:
-                                url = embed["url"]
-                            except KeyError:
-                                parsed = parsed + json.dumps(embed, indent=2)
-                    if len(message.attachments) > 0:
-                        url = message.attachments[0].url
-                        result = {"text": f'__{author}__: {parsed}'}
-                        self.urbit_client.post_message(
-                            self.group['urbit_ship'],
-                            channel["urbit_channel"],
-                            result
-                            )
-                        if url:
-                            self.urbit_client.post_message(
-                                self.group['urbit_ship'],
-                                channel["urbit_channel"],
-                                { "url": url }
-                            )
-
-                    else:
-                        result = { "text": '' }
-                        if url != '':
-                            if title != '':
-                                title = f'[{title}]({url})'
-                            else:
-                                result["url"] = url 
-                        if description != '':
-                            description = f'''
-                            
-                            {description}
-                            
-                            '''
-                        result["text"] = f'__{author}__: {title}{description}{parsed}'                       
-                        self.urbit_client.post_message(
-                            self.group["urbit_ship"],
-                            channel["urbit_channel"],
-                            result
-                        )
-                        if image != '':
-                            self.urbit_client.post_message(
-                                self.group["urbit_ship"],
-                                channel["urbit_channel"],
-                                { "url" : image }
-                            )
 
 
 class FauxUrbitListener(discord.http.HTTPClient):
