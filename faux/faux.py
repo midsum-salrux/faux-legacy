@@ -112,16 +112,18 @@ class FauxDiscordListener(discord.Client):
                         message_type = 'reddit'
                     else:
                         pass
-                print(title)
-                print(name)
-                print(description)
-                print(image)
-                print(url)
-                print(orig_author_name)
-                print(orig_author_url)
+                print(message_type)
+                print('title ' +title)
+                print('name' +name)
+                print('description' +description)
+                print('image' + image)
+                print('url' + url)
+                print('orig_author_name' + orig_author_name)
+                print('orig_author_url' + orig_author_url)
             else:
                 pass # ??
         if len(message.attachments) > 0:
+            print('message had attachments')
             url = message.attachments[0].url
             result = {"text": f'__{author}__: {parsed}'}
             self.urbit_client.post_message(
