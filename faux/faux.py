@@ -167,13 +167,13 @@ class FauxDiscordListener(discord.Client):
                 channel["urbit_channel"],
                 result
             )
-            if url != '':
+            if url != '' and url not in result["text"]:
                 self.urbit_client.post_message(
                     self.group["urbit_ship"],
                     channel["urbit_channel"],
                     { "url" : url }
                 )
-            if image != '':
+            if image != '' and image not in url:
                 self.urbit_client.post_message(
                     self.group["urbit_ship"],
                     channel["urbit_channel"],
