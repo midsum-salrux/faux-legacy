@@ -69,8 +69,6 @@ class FauxDiscordListener(discord.Client):
         )
         if len(matching_channels) == 0:
             return
-        print('got message')
-        print(message)
         message_type = ''
         channel = matching_channels[0]
         printable = set(string.printable)
@@ -95,8 +93,6 @@ class FauxDiscordListener(discord.Client):
             url = message.stickers[0].image.url
         if len(message.embeds) > 0:
             embed = message.embeds[0].to_dict()
-            print('message had embeds')
-            print(embed)
             if embed["type"] == 'rich':
                 title = key(embed, 'title')
                 name = key(embed, 'name')
@@ -112,18 +108,9 @@ class FauxDiscordListener(discord.Client):
                         message_type = 'reddit'
                     else:
                         pass
-                print(message_type)
-                print('title ' +title)
-                print('name' +name)
-                print('description' +description)
-                print('image' + image)
-                print('url' + url)
-                print('orig_author_name' + orig_author_name)
-                print('orig_author_url' + orig_author_url)
             else:
                 pass # ??
         if len(message.attachments) > 0:
-            print('message had attachments')
             url = message.attachments[0].url
             result = {"text": f'__{author}__: {parsed}'}
             self.urbit_client.post_message(
@@ -160,8 +147,6 @@ class FauxDiscordListener(discord.Client):
             else:
                 print('found a message i couldnt parse')
                 print(parsed)
-            print('printing result')
-            print(result["text"])
             self.urbit_client.post_message(
                 self.group["urbit_ship"],
                 channel["urbit_channel"],
