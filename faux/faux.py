@@ -68,6 +68,7 @@ class FauxDiscordListener(discord.Client):
                     url = ''
                     title = ''
                     description = ''
+                    image = ''
                     if parsed.startswith("https://tenor") or parsed.startswith("https://media.tenor") and not parsed.endswith(".gif"):
                         url = f'{parsed}.gif'
                     if message.reference:
@@ -83,6 +84,10 @@ class FauxDiscordListener(discord.Client):
                         if embed["type"] == 'rich':
                             title = embed["title"]
                             description = embed["description"]
+                            try:
+                                image = embed["image"]["url"]
+                            except KeyError:
+                                pass
                         try:
                             url = embed["video"]["url"]
                         except KeyError:
@@ -124,6 +129,12 @@ class FauxDiscordListener(discord.Client):
                             channel["urbit_channel"],
                             result
                         )
+                        if image != '':
+                            self.urbit_client.post_message(
+                                self.group["urbit_ship"],
+                                channel["urbit_channel"],
+                                { "url" : image }
+                            )
 
 
 class FauxUrbitListener(discord.http.HTTPClient):
