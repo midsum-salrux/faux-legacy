@@ -149,7 +149,7 @@ class FauxDiscordListener(discord.Client):
                 result["url"] = url 
             if message_type == 'reddit':
                 result["text"] = f'''
-                    [{title} by {orig_author_name}]({url)}):
+                    [{title} by {orig_author_name}]({url}):
 
                     {description}
                 '''
