@@ -102,7 +102,7 @@ class FauxDiscordListener(discord.Client):
                 if tweet_url != '':
                     message_type = 'twitter'
             else:
-                # ??
+                pass # ??
         if len(message.attachments) > 0:
             url = message.attachments[0].url
             result = {"text": f'__{author}__: {parsed}'}
