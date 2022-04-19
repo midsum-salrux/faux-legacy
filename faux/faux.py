@@ -80,8 +80,8 @@ class FauxDiscordListener(discord.Client):
         title = ''
         description = ''
         image = ''
-        tweet_url = ''
-        tweet_author = ''
+        orig_author_url = ''
+        orig_author_name = ''
         if parsed.startswith("https://tenor") or parsed.startswith("https://media.tenor") and not parsed.endswith(".gif"):
             message_type = 'gif'
             url = f'{parsed}.gif'
@@ -103,12 +103,20 @@ class FauxDiscordListener(discord.Client):
                 description = key(embed, 'description')
                 image = key(key(embed, 'image'), 'url')
                 url = key(embed, 'url')
-                if url.startswith('https://redd.it'):
-                    message_type = 'reddit'
-                tweet_url = key(key(embed, 'author'), 'url')
-                tweet_author = key(key(embed, 'author'), 'name')
-                if tweet_url != '':
-                    message_type = 'twitter'
+                orig_author_url = key(key(embed, 'author'), 'url')
+                orig_author_name = key(key(embed, 'author'), 'name')
+                if orig_author_url != '':
+                    if orig_author_url.startswith('https://twitter'):
+                        message_type = 'twitter'
+                    elif orig_author_url.startswith('https://reddit'):
+                        message_type = 'reddit'
+                print(title)
+                print(name)
+                print(description)
+                print(image)
+                print(url)
+                print(orig_author_name)
+                print(orig_author_url)
             else:
                 pass # ??
         if len(message.attachments) > 0:
@@ -136,10 +144,16 @@ class FauxDiscordListener(discord.Client):
             if url != '':
                 result["url"] = url 
             if message_type == 'reddit':
-                title = f'[{title}]({url})'
+                title = f'[{title}]({url
+                title = f'[{title}]({namel
+                title = f'[{title}]({descriptionl
+                print(image)
+                print(url)
+                print(orig_author_name)
+                print(orig_author_url)
             elif message_type == 'twitter':
                 result["text"] = f'''__{author}__:
-                    [{tweet_author}]({tweet_url}): {description}
+                    [{orig_author_name}]({orig_author_url}): {description}
                 '''
             elif message_type == 'discord':
                 result["text"] = f'__{author}__: {title}{description}{parsed}'                       
