@@ -55,6 +55,8 @@ class FauxDiscordListener(discord.Client):
         self._urbit_client = value
 
     async def on_message(self, message):
+        print('got message')
+        print(message)
         if message.author == self.user:
             return
         if (not message.guild):
@@ -93,6 +95,8 @@ class FauxDiscordListener(discord.Client):
             url = message.stickers[0].image.url
         if len(message.embeds) > 0:
             embed = message.embeds[0].to_dict()
+            print('message had embeds')
+            primt(embed)
             if embed["type"] == 'rich':
                 title = key(embed, 'title')
                 name = key(embed, 'name')
