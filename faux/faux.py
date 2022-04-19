@@ -33,7 +33,9 @@ def key(o, k):
     try:
         return o[k]
     except KeyError:
-        return ''
+        return '' # key does not exist
+    except TypeError:
+        return o # o is a string, not an obj
 
 class FauxDiscordListener(discord.Client):
     @property
