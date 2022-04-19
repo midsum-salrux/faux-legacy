@@ -55,8 +55,6 @@ class FauxDiscordListener(discord.Client):
         self._urbit_client = value
 
     async def on_message(self, message):
-        print('got message')
-        print(message)
         if message.author == self.user:
             return
         if (not message.guild):
@@ -71,6 +69,8 @@ class FauxDiscordListener(discord.Client):
         )
         if len(matching_channels) == 0:
             return
+        print('got message')
+        print(message)
         message_type = ''
         channel = matching_channels[0]
         printable = set(string.printable)
@@ -148,7 +148,11 @@ class FauxDiscordListener(discord.Client):
             if url != '':
                 result["url"] = url 
             if message_type == 'reddit':
-                title = f'[{title}]({url})'
+                result["text"] = f'''
+                    [{title} by {orig_author_name}]({url)}):
+
+                    {description}
+                '''
             elif message_type == 'twitter':
                 result["text"] = f'''__{author}__:
                     [{orig_author_name}]({orig_author_url}): {description}
