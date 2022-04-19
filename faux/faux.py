@@ -148,7 +148,7 @@ class FauxDiscordListener(discord.Client):
             if url != '':
                 result["url"] = url 
             if message_type == 'reddit':
-                title = f'[{title}]({url)})'
+                title = f'[{title}]({url})'
             elif message_type == 'twitter':
                 result["text"] = f'''__{author}__:
                     [{orig_author_name}]({orig_author_url}): {description}
