@@ -103,6 +103,8 @@ class FauxDiscordListener(discord.Client):
                 description = key(embed, 'description')
                 image = key(key(embed, 'image'), 'url')
                 url = key(embed, 'url')
+                if url.startswith('https://redd.it'):
+                    message_type = 'reddit'
                 tweet_url = key(key(embed, 'author'), 'url')
                 tweet_author = key(key(embed, 'author'), 'name')
                 if tweet_url != '':
