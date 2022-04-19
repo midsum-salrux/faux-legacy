@@ -162,6 +162,11 @@ class FauxDiscordListener(discord.Client):
             else:
                 print('found a message i couldnt parse')
                 print(parsed)
+            print('printing result')
+            print(result["text"])
+            if url != '':
+                print('result had url')
+                print(result["url"])
             self.urbit_client.post_message(
                 self.group["urbit_ship"],
                 channel["urbit_channel"],
