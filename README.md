@@ -6,11 +6,7 @@ Faux is a chatbot bridge between urbit and discord. Whenever a member posts in y
 
 ## Setup
 
-Self-hosting is encouraged, especially for private groups, but I also run a public instance.
-
-### Self-hosting
-
-#### Installation
+### Installation
 
 `git clone https://github.com/midsum-salrux/faux`
 
@@ -18,20 +14,22 @@ Self-hosting is encouraged, especially for private groups, but I also run a publ
 
 `pip3 install .`
 
-#### Configuration
+### Configuration
 
-##### Environment Variables
+#### Environment Variables
 
-###### URBIT_URL
+If you get `TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'`, it means that you haven't set these correctly.
+
+##### URBIT_URL
 Whenever your urbit bot is hosted. This will often be `http://localhost:8080`
 
-###### URBIT_SHIP
+##### URBIT_SHIP
 Your urbit bot ship name, with no `~`. For example, `botdys-dozzod-tomdys`
 
-###### URBIT_CODE
+##### URBIT_CODE
 The `+code` of your urbit bot
 
-###### DISCORD_TOKEN
+##### DISCORD_TOKEN
 You need to create a discord bot to self-host Faux. Here are some instructions:
 
 https://www.freecodecamp.org/news/create-a-discord-bot-with-python/
@@ -79,16 +77,12 @@ The internal id of your discord channel. You can find it from the URL
 
 ![](https://i.imgur.com/RfEIPzk.png)
 
-#### Running
+### Running
 
 Invite your urbit bot to your urbit group, and your discord bot to your discord group, then run:
 
 `python3 faux/faux.py`
 
-### Public instance
+## Support
 
-Here's how to get the public instance of Faux in your group:
-
-1. Invite `~botdys-dozzod-tomdys` to your group
-2. Click this link to invite the public discord bot to your discord group https://discord.com/api/oauth2/authorize?client_id=885566842540814356&permissions=3072&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Foauth2%2Fauthorize%3F%26client_id%3D885566842540814356%26scope%3Dbot&scope=bot
-3. Send me an entry for your group in groups.json format (described above) via DM to `~midsum-salrux`.
+Join ~tomdys/the-faux-shore on urbit
