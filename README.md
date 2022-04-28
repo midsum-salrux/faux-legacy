@@ -18,6 +18,8 @@ Faux is a chatbot bridge between urbit and discord. Whenever a member posts in y
 
 #### Environment Variables
 
+If you get `TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'`, it means that you haven't set these correctly.
+
 ##### URBIT_URL
 Whenever your urbit bot is hosted. This will often be `http://localhost:8080`
 
