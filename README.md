@@ -85,4 +85,4 @@ Invite your urbit bot to your urbit group, and your discord bot to your discord 
 
 ## Support
 
-Join ~tomdys/the-faux-shore on urbit
+Join `~tomdys/the-faux-shore` on urbit
