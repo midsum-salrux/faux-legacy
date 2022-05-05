@@ -38,7 +38,7 @@ This environment variable is the API token of your discord bot. You can find it 
 
 ![](https://i.imgur.com/s6k1GUt.png)
 
-[https://user-images.githubusercontent.com/45724082/141873788-dea0d195-b860-4b24-bdcb-d15c50928e4e.png](When you create your OAuth2 URL, be sure to check these boxes)
+[When you create your OAuth2 URL, be sure to check these boxes](https://user-images.githubusercontent.com/45724082/141873788-dea0d195-b860-4b24-bdcb-d15c50928e4e.png)
 
 #### groups.json
 
