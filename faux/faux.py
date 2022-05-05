@@ -212,7 +212,7 @@ class FauxUrbitListener(discord.http.HTTPClient):
                     channel = matching_channels[0]
 
                     self.message = {"channel_id": channel["discord_channel_id"],
-                                    "content": "%s" % (message.full_text)}
+                                    "content": "%s: %s" % (message.author, message.full_text)}
                     await self.send_message(
                             channel["discord_channel_id"],
                             message.full_text)
