@@ -38,6 +38,8 @@ This environment variable is the API token of your discord bot. You can find it 
 
 ![](https://i.imgur.com/s6k1GUt.png)
 
+[https://user-images.githubusercontent.com/45724082/141873788-dea0d195-b860-4b24-bdcb-d15c50928e4e.png](When you create your OAuth2 URL, be sure to check these boxes)
+
 #### groups.json
 
 This file specifies where posts will be echoed between. Here's a sample:
@@ -53,7 +55,9 @@ This file specifies where posts will be echoed between. Here's a sample:
 
 ##### urbit_ship
 
-The name of the ship hosting your group. No `~`
+The name of the ship hosting your chat (ordinarily the same as the ship hosting your group, but if they're separate, you want the chat ship). 
+
+No `~`
 
 ##### discord_group_id
 
