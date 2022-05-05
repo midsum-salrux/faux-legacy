@@ -205,7 +205,7 @@ class FauxUrbitListener(discord.http.HTTPClient):
 
                     await self.send_message(
                         channel["discord_channel_id"],
-                        "%s: %s" % (message.author, message.full_text)
+                        "~%s: %s" % (message.author, message.full_text)
                     )
 
         def urbit_listener(message, _):
