@@ -174,14 +174,6 @@ class FauxDiscordListener(discord.Client):
 
 class FauxUrbitListener(discord.http.HTTPClient):
     @property
-    def message(self):
-        return self._message
-
-    @message.setter
-    def message(self, value):
-        self._message = value
-
-    @property
     def group(self):
         return self._group
 
@@ -211,11 +203,10 @@ class FauxUrbitListener(discord.http.HTTPClient):
                 if len(matching_channels) != 0:
                     channel = matching_channels[0]
 
-                    self.message = {"channel_id": channel["discord_channel_id"],
-                                    "content": "%s: %s" % (message.author, message.full_text)}
                     await self.send_message(
-                            channel["discord_channel_id"],
-                            message.full_text)
+                        channel["discord_channel_id"],
+                        "%s: %s" % (message.author, message.full_text)
+                    )
 
         def urbit_listener(message, _):
             asyncio.run(urbit_action(message, _))
