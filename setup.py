@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/midsum-salrux/faux",
     packages=setuptools.find_packages(),
-    install_requires=['quinnat', 'discord.py'],
+    install_requires=['quinnat', 'discord.py ==1.7.3'],
     classifiers=[],
     python_requires='>=3.7',
 )

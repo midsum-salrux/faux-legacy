@@ -131,9 +131,9 @@ class FauxDiscordListener(discord.Client):
             result = { "text": '' }
             if description:
                 description = f'''
-                
+
                 {description}
-                
+
                 '''
             if message_type == MessageType.REDDIT:
                 result["text"] = f'''
@@ -146,7 +146,7 @@ class FauxDiscordListener(discord.Client):
                     [{orig_author_name}]({orig_author_url}): {description}
                 '''
             elif message_type == MessageType.DISCORD:
-                result["text"] = f'__{author}__: {title}{description}{parsed}'        
+                result["text"] = f'__{author}__: {title}{description}{parsed}'
             elif message_type == MessageType.GIF:
                 result["text"] = f'__{author}__:'
             else:
@@ -199,7 +199,7 @@ class FauxUrbitListener(discord.http.HTTPClient):
 
     def run(self):
         async def urbit_action(message, _):
-            await self.static_login(DISCORD_TOKEN)
+            await self.static_login(DISCORD_TOKEN, bot=DISCORD_TOKEN)
             if self.group["urbit_ship"] == message.host_ship:
                 matching_channels = list(
                     filter(
