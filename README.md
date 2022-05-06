@@ -90,3 +90,7 @@ Invite your urbit bot to your urbit group, and your discord bot to your discord 
 ## Support
 
 Join `~tomdys/the-faux-shore` on urbit
+
+## Caveats
+
+The bot will not trigger on its own messages, and the bot will not work in chats that it hosts itself. It's best to use a separate moon for your bot.
