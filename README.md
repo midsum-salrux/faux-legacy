@@ -18,7 +18,7 @@ Faux is a chatbot bridge between urbit and discord. Whenever a member posts in y
 
 #### Environment Variables
 
-If you get `TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'`, it means that you haven't set these correctly.
+If you get `TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'`, it means that you haven't set these correctly. [You can read about how to set environment variables here](https://www.digitalocean.com/community/tutorials/how-to-read-and-set-environmental-and-shell-variables-on-linux)
 
 ##### URBIT_URL
 Wherever your urbit bot is hosted. This will often be `http://localhost:8080`
@@ -30,9 +30,7 @@ Your urbit bot ship name, with no `~`. For example, `botdys-dozzod-tomdys`
 The `+code` of your urbit bot
 
 ##### DISCORD_TOKEN
-You need to create a discord bot to self-host Faux. Here are some instructions:
-
-https://www.freecodecamp.org/news/create-a-discord-bot-with-python/
+You need to create a discord bot to self-host Faux. [Here are some instructions](https://www.freecodecamp.org/news/create-a-discord-bot-with-python/)
 
 This environment variable is the API token of your discord bot. You can find it here:
 
